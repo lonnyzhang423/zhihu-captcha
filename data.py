@@ -7,7 +7,7 @@ from io import BytesIO
 from PIL import Image, ImageFont, ImageOps
 from PIL.ImageDraw import Draw
 
-__all__ = ["CAPTCHA_LEN", "CHAR_SET_LEN", "IMG_WIDTH", "IMG_HEIGHT", "next_batch"]
+__all__ = ["CAPTCHA_LEN", "CHAR_SET_LEN", "IMG_WIDTH", "IMG_HEIGHT", "next_batch", "vector2text"]
 
 numbers = string.digits
 alphabets = string.ascii_lowercase

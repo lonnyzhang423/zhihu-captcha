@@ -1,8 +1,8 @@
 import os
 import tensorflow as tf
-
 from data import *
 
+tf.reset_default_graph()
 with tf.name_scope("input"):
     X = tf.placeholder(tf.float32, [None, IMG_WIDTH * IMG_HEIGHT], name="input_x")
     Y = tf.placeholder(tf.float32, [None, CAPTCHA_LEN * CHAR_SET_LEN], name="input_y")
