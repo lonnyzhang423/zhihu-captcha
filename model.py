@@ -129,19 +129,23 @@ def start_train():
         summary = tf.summary.FileWriter("logs", sess.graph)
 
         sess.run(tf.global_variables_initializer())
+        try:
+            for step in range(0, 10000):
+                _, loss_ = sess.run([train_op, loss], feed_dict=feed_dict(True))
+                print("Step:", step, "Loss:", loss_)
 
-        for step in range(0, 10000):
-            _, loss_ = sess.run([train_op, loss], feed_dict=feed_dict(True))
-            print("Step:", step, "Loss:", loss_)
+                if step % 100 == 0:
+                    logs, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False))
+                    summary.add_summary(logs, step)
+                    print("Step:", step, "Accuracy:", acc)
 
-            if step % 100 == 0:
-                logs, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False))
-                summary.add_summary(logs, step)
-                print("Step:", step, "Accuracy:", acc)
-
-            if step and step % 2000 == 0:
-                file = os.path.join(check_points_dir(), "captcha_model")
-                saver.save(sess, file, global_step=step)
+                if step and step % 2000 == 0:
+                    file = os.path.join(check_points_dir(), "captcha_model")
+                    saver.save(sess, file, global_step=step)
+        except (NotEnoughCaptchaException, KeyboardInterrupt) as e:
+            file = os.path.join(check_points_dir(), "captcha_model")
+            saver.save(sess, file, global_step=100000)
+            raise e
 
 
 if __name__ == '__main__':
