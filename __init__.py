@@ -1,15 +1,33 @@
 import os
-import io
-import base64
+import logging
 
 import numpy as np
 import tensorflow as tf
 
-from PIL import Image
 from data import *
 from model import check_points_dir
 
-__all__ = ["predict_captcha"]
+__all__ = ["predict_captcha", "captcha_logger"]
+
+
+def _init_captcha_logger():
+    logger = logging.getLogger(__file__)
+    logger.setLevel(logging.INFO)
+
+    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), CAPTCHA_FILE_NAME)
+    fh = logging.FileHandler(log_file, encoding="utf8")
+    sh = logging.StreamHandler()
+    fmt = logging.Formatter("%(message)s")
+    fh.setFormatter(fmt)
+    sh.setFormatter(fmt)
+
+    logger.addHandler(fh)
+    logger.addHandler(sh)
+
+    return logger
+
+
+captcha_logger = _init_captcha_logger()
 
 tf.reset_default_graph()
 sess = tf.Session()
