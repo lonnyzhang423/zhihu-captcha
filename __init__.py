@@ -14,6 +14,9 @@ def _init_captcha_logger():
     logger = logging.getLogger(__file__)
     logger.setLevel(logging.INFO)
 
+    if len(logger.handlers) > 0:
+        logger.handlers.clear()
+
     log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), CAPTCHA_FILE_NAME)
     fh = logging.FileHandler(log_file, encoding="utf8")
     sh = logging.StreamHandler()
@@ -31,7 +34,7 @@ captcha_logger = _init_captcha_logger()
 
 tf.reset_default_graph()
 sess = tf.Session()
-tf.train.import_meta_graph(os.path.join(check_points_dir(), "captcha_model-100000.meta"))
+tf.train.import_meta_graph(os.path.join(check_points_dir(), "captcha_model-42000.meta"))
 tf.train.Saver().restore(sess, tf.train.latest_checkpoint(check_points_dir()))
 graph = tf.get_default_graph()
 
@@ -54,15 +57,19 @@ def predict_captcha(image):
     return vector2text(vector)
 
 
+def test_accuracy():
+    hits = 0
+    for i in range(100):
+        text, image = next_text_and_image()
+        predict_text = predict_captcha(image)
+        hit = False
+        if text == predict_text:
+            hit = True
+            hits += 1
+        print("Correct:", text, "Predict:", predict_text, "hit:", hit)
+
+    print("Test 100 captchas. Accuracy:", hits / 100)
+
+
 if __name__ == '__main__':
-    with open(CAPTCHA_FILE_NAME, "r") as f:
-        hits = total = 0
-        for line in f:
-            total += 1
-            correct_text, image = line.split(":")
-            predict_text = predict_captcha(image)
-            hit = False
-            if correct_text == predict_text:
-                hits += 1
-                hit = True
-            print("Correct:", correct_text, "Predict:", predict_text, "hit:", hit, "Accuracy:", hits / total)
+    test_accuracy()
