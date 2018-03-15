@@ -17,8 +17,7 @@ def _init_captcha_logger():
     if len(logger.handlers) > 0:
         logger.handlers.clear()
 
-    log_file = os.path.join(os.path.dirname(os.path.abspath(__file__)), CAPTCHA_FILE_NAME)
-    fh = logging.FileHandler(log_file, encoding="utf8")
+    fh = logging.FileHandler(CAPTCHA_FILE_NAME, encoding="utf8")
     sh = logging.StreamHandler()
     fmt = logging.Formatter("%(message)s")
     fh.setFormatter(fmt)

@@ -1,5 +1,6 @@
 import string
 import io
+import os
 import base64
 import numpy as np
 from PIL import Image
@@ -16,7 +17,7 @@ ALPHABETS = string.ascii_uppercase
 CAPTCHA_LEN = 4
 CHAR_SET = numbers + alphabets + ALPHABETS
 CHAR_SET_LEN = len(CHAR_SET)
-CAPTCHA_FILE_NAME = "captcha_base64.txt"
+CAPTCHA_FILE_NAME = os.path.join(os.path.dirname(__file__), "captcha_base64.txt")
 
 IMG_WIDTH = 150
 IMG_HEIGHT = 60
