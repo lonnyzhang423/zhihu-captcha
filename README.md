@@ -16,3 +16,17 @@ Crack zhihu captcha with TensorFlow
 5. Save your well trained network model
 6. Restore the network model,feed the production-environment [zhihu captcha](https://www.zhihu.com/captcha.gif) and predict
 7. Boom!:boom:
+
+### CNN
+We use TensorFlow to build a simple CNN which contains one input layer,three convolutional and max pooling layers and a final fully connected layer.
+TensorBoard show the network graph:  
+![CNN](screenshot/graph.png)  
+Buy captcha-marked service to mark enough captchas,then feed into the prebuilt network,train it until you satisfied with the accuracy.  
+I run about 15 hours and get 95% accuracy:  
+![Accuracy trend](screenshot/accuracy.png)  
+And the loss trend:  
+![Loss trend](screenshot/loss.png)  
+
+***
+Follow my WeChat official account: Python实验课，and send "知乎验证码" to me,I will share you a file contains 100 thousand marked-captchas for training.  
+![](screenshot/qrcode_small.jpg)
