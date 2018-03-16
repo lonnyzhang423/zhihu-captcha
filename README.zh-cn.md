@@ -3,10 +3,10 @@
 使用TensorFlow破解知乎验证码
 
 
-### 前提
-1. Python3基本使用
-2. PIL库和numpy库基本使用
-3. TensorFlow使用
+### 基础知识
+1. Python3
+2. PIL库和numpy库
+3. TensorFlow
 4. CNN(卷积神经网络)
 
 
@@ -30,5 +30,5 @@ loss曲线如下：
 ![loss](screenshot/loss.png)
 
 ***
-关注微信公众号：Python实验课，后台回复"知乎验证码"分享一份10万张标记好的验证码文件用于训练  
+关注微信公众号：**Python实验课**，后台回复 **"知乎验证码"** 免费分享一份10万张标记好的验证码文件用于训练  
 ![Python实验课](screenshot/qrcode_small.jpg)

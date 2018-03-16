@@ -23,7 +23,7 @@ def inference():
         output tensor with the computed logits, float, [batch_size,n_classes]
     """
 
-    # 3 conventional layers
+    # 3 convolutional layers
     with tf.variable_scope("conv1"):
         weights = tf.get_variable("weights", initializer=random_value(shape=[3, 3, 1, 32]))
         biases = tf.get_variable("biases", initializer=random_value(shape=[32], alpha=0.1))

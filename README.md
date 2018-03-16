@@ -28,5 +28,5 @@ And the loss trend:
 ![Loss trend](screenshot/loss.png)  
 
 ***
-Follow my WeChat official account: Python实验课，and send "知乎验证码" to me,I will share you a file contains 100 thousand marked-captchas for training.  
+Follow my WeChat official account: **Python实验课**，and send **"知乎验证码"** to me,I will share you a file contains 100 thousand marked-captchas for training.  
 ![](screenshot/qrcode_small.jpg)
