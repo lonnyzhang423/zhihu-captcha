@@ -8,6 +8,11 @@ Crack zhihu captcha with TensorFlow
 3. TensorFlow
 4. CNN(Convolutional Neural Network)
 
+### How to run
+1. Put enough marked-captchas into [captcha_base64.txt](captcha_base64.txt) file
+2. Run script [__init__.py](__init__.py), `python3 model.py`
+3. Import `predict_captcha` function from `__init__.py` module, execute `predict_captcha` with image base64 str parameter, it will return you a predict captcha
+
 ### Steps
 1. We use Python3 and TensorFlow to build a CNN model
 2. For better accuracy,mark as many as possible [zhihu captchas](https://www.zhihu.com/captcha.gif) and save to your disk
