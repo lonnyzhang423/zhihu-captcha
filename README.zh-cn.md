@@ -11,8 +11,8 @@
 
 
 ### 如何运行
-1. 标记足够多的验证码放到[captcha_base64.txt](captcha_base64.txt)文件中（图片为base64编码的字符串）
-2. 运行[model.py](model.py)脚本，`python3 model.py`
+1. 标记足够多的验证码放到[captcha_base64.txt](predict/captcha_base64.txt)文件中（图片为base64编码的字符串）
+2. 运行[model.py](predict/model.py)脚本，`python3 model.py`
 3. 在其他模块中导入[__init__.py](__init__.py)的`predict_captcha`函数，传入base64编码的图片字符串，得到预测值
 
 

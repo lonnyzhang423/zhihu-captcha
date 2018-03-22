@@ -1,6 +1,8 @@
 import os
 import tensorflow as tf
-from data import *
+
+from config import *
+from utils import *
 
 tf.reset_default_graph()
 with tf.name_scope("input"):
@@ -103,7 +105,7 @@ def evaluation(logits, labels):
 
 
 def feed_dict(training=True):
-    x, y = next_batch()
+    x, y = next_predict_batch()
     if training:
         return {X: x, Y: y, keep_prob: 0.7}
     else:
@@ -142,7 +144,7 @@ def start_train():
                 if step and step % 2000 == 0:
                     file = os.path.join(check_points_dir(), "captcha_model")
                     saver.save(sess, file, global_step=step)
-        except (NotEnoughCaptchaException, KeyboardInterrupt) as e:
+        except KeyboardInterrupt as e:
             file = os.path.join(check_points_dir(), "captcha_model")
             saver.save(sess, file, global_step=100000)
             raise e
