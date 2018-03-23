@@ -52,7 +52,7 @@ with bold_graph.as_default():
     if latest_checkpoint:
         head, tail = os.path.split(latest_checkpoint)
         tf.train.import_meta_graph(os.path.join(predict_bold_checkpoints_dir(), tail + ".meta"))
-        tf.train.Saver().restore(normal_sess, latest_checkpoint)
+        tf.train.Saver().restore(bold_sess, latest_checkpoint)
 
         X_bold = bold_graph.get_tensor_by_name("input/input_x:0")
         Y_bold = bold_graph.get_tensor_by_name("input/input_y:0")
@@ -84,7 +84,7 @@ def predict_captcha(image, clazz=0):
             i += 1
         return vector2text(vector)
     except BaseException:
-        logging.warning("Predict captcha exception!", exc_info=True)
+        logging.warning("Predict captcha exception! Class:%s", clazz, exc_info=True)
         return "####"
 
 

@@ -25,9 +25,9 @@ def _eval_accuracy():
     bold_file = os.path.join(dir, "bold_captcha_base64.txt")
     with open(bold_file, "r") as f:
         for line in f:
-            code, image = line.split(":")
+            correct_code, image = line.split(":")
             predict_code = predict(image)
-            print(predict_code)
+            print("Correct:", correct_code, "Predict:", predict_code, "Same:", correct_code == predict_code)
 
 
 if __name__ == '__main__':
