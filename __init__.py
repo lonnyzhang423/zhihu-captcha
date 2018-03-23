@@ -4,7 +4,7 @@ from classify import classify_captcha
 from predict import predict_captcha
 from utils import samples_dir
 
-__all__ = ["predict"]
+__all__ = ["predict", "classify_captcha", "predict_captcha"]
 
 
 def predict(image):
@@ -20,7 +20,7 @@ def predict(image):
         return "####"
 
 
-def eval_accuracy():
+def _eval_accuracy():
     dir = samples_dir()
     bold_file = os.path.join(dir, "bold_captcha_base64.txt")
     with open(bold_file, "r") as f:
@@ -31,4 +31,4 @@ def eval_accuracy():
 
 
 if __name__ == '__main__':
-    eval_accuracy()
+    _eval_accuracy()

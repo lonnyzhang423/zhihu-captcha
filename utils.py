@@ -15,9 +15,9 @@ __all__ = ["text2vector", "vector2text", "img2array",
 
 # 细体验证码
 os.path.dirname(__file__)
-NORMAL_CAPTCHA = os.path.join(os.path.dirname(__file__), "samples/normal_captcha_base64.txt")
+NORMAL_CAPTCHA = os.path.join(os.path.dirname(__file__), "samples", "normal_captcha_base64.txt")
 # 粗体验证码
-BOLD_CAPTCHA = os.path.join(os.path.dirname(__file__), "samples/bold_captcha_base64.txt")
+BOLD_CAPTCHA = os.path.join(os.path.dirname(__file__), "samples", "bold_captcha_base64.txt")
 
 
 def text2vector(text):
@@ -91,6 +91,9 @@ def next_normal_text_and_image():
         _normal_captcha_file = open(NORMAL_CAPTCHA, "r")
         logging.warning("Not enough normal captcha! Loop reading lines from same file!")
         return next_normal_text_and_image()
+    except InvalidCaptchaError:
+        logging.warning("Invalid captcha error! Next normal text and image!", exc_info=True)
+        return next_normal_text_and_image()
 
 
 def next_normal_image():
@@ -107,9 +110,12 @@ def next_bold_text_and_image():
         return text, image
     except StopIteration:
         _bold_captcha_file.close()
-        _bold_captcha_file = open(NORMAL_CAPTCHA, "r")
+        _bold_captcha_file = open(BOLD_CAPTCHA, "r")
         logging.warning("Not enough bold captcha! Loop reading lines from same file!")
-        return next_normal_text_and_image()
+        return next_bold_text_and_image()
+    except InvalidCaptchaError:
+        logging.warning("Invalid captcha error! Next normal text and image!", exc_info=True)
+        return next_bold_text_and_image()
 
 
 def next_bold_image():
@@ -158,15 +164,15 @@ def next_classify_batch(batch_size=64):
 
 
 def predict_normal_checkpoints_dir():
-    return os.path.join(os.path.dirname(__file__), "predict/normal_checkpoints")
+    return os.path.join(os.path.dirname(__file__), "predict", "normal_checkpoints")
 
 
 def predict_bold_checkpoints_dir():
-    return os.path.join(os.path.dirname(__file__), "predict/bold_checkpoints")
+    return os.path.join(os.path.dirname(__file__), "predict", "bold_checkpoints")
 
 
 def classify_checkpoints_dir():
-    return os.path.join(os.path.dirname(__file__), "classify/checkpoints")
+    return os.path.join(os.path.dirname(__file__), "classify", "checkpoints")
 
 
 def samples_dir():

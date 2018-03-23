@@ -136,8 +136,11 @@ def start_train(clazz=0):
         sess.run(tf.global_variables_initializer())
         try:
             for step in range(0, 10000):
-                _, loss_ = sess.run([train_op, loss], feed_dict=feed_dict(True, clazz=clazz))
-                print("Step:", step, "Loss:", loss_)
+                try:
+                    _, loss_ = sess.run([train_op, loss], feed_dict=feed_dict(True, clazz=clazz))
+                    print("Step:", step, "Loss:", loss_)
+                except InvalidCaptchaError:
+                    continue
 
                 if step % 100 == 0:
                     logs, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False, clazz=clazz))
