@@ -1,6 +1,8 @@
 import os
 import tensorflow as tf
-from data import *
+
+from config import *
+from utils import *
 
 tf.reset_default_graph()
 with tf.name_scope("input"):
@@ -102,22 +104,22 @@ def evaluation(logits, labels):
     return accuracy
 
 
-def feed_dict(training=True):
-    x, y = next_batch()
+def feed_dict(training=True, clazz=0):
+    x, y = next_predict_batch(clazz=clazz)
     if training:
         return {X: x, Y: y, keep_prob: 0.7}
     else:
         return {X: x, Y: y, keep_prob: 1.0}
 
 
-def check_points_dir():
-    ckp_dir = os.path.join(os.path.dirname(__file__), "checkpoints")
-    if not os.path.exists(ckp_dir):
-        os.makedirs(ckp_dir)
-    return ckp_dir
+def checkpoints_dir(clazz=0):
+    if clazz == 0:
+        return predict_normal_checkpoints_dir()
+    else:
+        return predict_bold_checkpoints_dir()
 
 
-def start_train():
+def start_train(clazz=0):
     logits = inference()
     loss = losses(logits, Y)
     train_op = train_step(loss)
@@ -126,27 +128,33 @@ def start_train():
     saver = tf.train.Saver(max_to_keep=2)
     with tf.Session() as sess:
         merged = tf.summary.merge_all()
-        summary = tf.summary.FileWriter("logs", sess.graph)
+        if clazz == 0:
+            summary = tf.summary.FileWriter("normal_logs", sess.graph)
+        else:
+            summary = tf.summary.FileWriter("bold_logs", sess.graph)
 
         sess.run(tf.global_variables_initializer())
         try:
             for step in range(0, 10000):
-                _, loss_ = sess.run([train_op, loss], feed_dict=feed_dict(True))
-                print("Step:", step, "Loss:", loss_)
+                try:
+                    _, loss_ = sess.run([train_op, loss], feed_dict=feed_dict(True, clazz=clazz))
+                    print("Step:", step, "Loss:", loss_)
+                except InvalidCaptchaError:
+                    continue
 
                 if step % 100 == 0:
-                    logs, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False))
+                    logs, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False, clazz=clazz))
                     summary.add_summary(logs, step)
                     print("Step:", step, "Accuracy:", acc)
 
-                if step and step % 2000 == 0:
-                    file = os.path.join(check_points_dir(), "captcha_model")
+                if step and step % 1000 == 0:
+                    file = os.path.join(checkpoints_dir(clazz=clazz), "predict_model")
                     saver.save(sess, file, global_step=step)
-        except (NotEnoughCaptchaException, KeyboardInterrupt) as e:
-            file = os.path.join(check_points_dir(), "captcha_model")
+        except KeyboardInterrupt as e:
+            file = os.path.join(checkpoints_dir(clazz=clazz), "predict_model")
             saver.save(sess, file, global_step=100000)
             raise e
 
 
 if __name__ == '__main__':
-    start_train()
+    start_train(clazz=1)

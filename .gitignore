@@ -230,6 +230,6 @@ fabric.properties
 
 
 # User define
-logs/
+**logs/
 .idea/
-checkpoints/
+**checkpoints/
