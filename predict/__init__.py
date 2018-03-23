@@ -30,29 +30,62 @@ def _init_captcha_logger():
 
 captcha_logger = _init_captcha_logger()
 
-graph = tf.Graph()
-with graph.as_default():
-    sess = tf.Session()
-    tf.train.import_meta_graph(os.path.join(predict_checkpoints_dir(), "predict_model-100000.meta"))
-    tf.train.Saver().restore(sess, tf.train.latest_checkpoint(predict_checkpoints_dir()))
+normal_graph = tf.Graph()
+with normal_graph.as_default():
+    normal_sess = tf.Session()
+    latest_checkpoint = tf.train.latest_checkpoint(predict_normal_checkpoints_dir())
+    if latest_checkpoint:
+        head, tail = os.path.split(latest_checkpoint)
+        tf.train.import_meta_graph(os.path.join(predict_normal_checkpoints_dir(), tail + ".meta"))
+        tf.train.Saver().restore(normal_sess, latest_checkpoint)
 
-X = graph.get_tensor_by_name("input/input_x:0")
-Y = graph.get_tensor_by_name("input/input_y:0")
-keep_prob = graph.get_tensor_by_name("keep_prob/keep_prob:0")
-logits = graph.get_tensor_by_name("final_output/logits:0")
-predict = tf.argmax(tf.reshape(logits, [-1, CAPTCHA_LEN, CHAR_SET_LEN]), 2)
+        X_normal = normal_graph.get_tensor_by_name("input/input_x:0")
+        Y_normal = normal_graph.get_tensor_by_name("input/input_y:0")
+        keep_prob_normal = normal_graph.get_tensor_by_name("keep_prob/keep_prob:0")
+        logits_normal = normal_graph.get_tensor_by_name("final_output/logits:0")
+        predict_normal = tf.argmax(tf.reshape(logits_normal, [-1, CAPTCHA_LEN, CHAR_SET_LEN]), 2)
+
+bold_graph = tf.Graph()
+with bold_graph.as_default():
+    bold_sess = tf.Session()
+    latest_checkpoint = tf.train.latest_checkpoint(predict_bold_checkpoints_dir())
+    if latest_checkpoint:
+        head, tail = os.path.split(latest_checkpoint)
+        tf.train.import_meta_graph(os.path.join(predict_bold_checkpoints_dir(), tail + ".meta"))
+        tf.train.Saver().restore(normal_sess, latest_checkpoint)
+
+        X_bold = bold_graph.get_tensor_by_name("input/input_x:0")
+        Y_bold = bold_graph.get_tensor_by_name("input/input_y:0")
+        keep_prob_bold = bold_graph.get_tensor_by_name("keep_prob/keep_prob:0")
+        logits_bold = bold_graph.get_tensor_by_name("final_output/logits:0")
+        predict_bold = tf.argmax(tf.reshape(logits_bold, [-1, CAPTCHA_LEN, CHAR_SET_LEN]), 2)
 
 
-def predict_captcha(image):
-    image = img2array(image)
-    max_idx = sess.run(predict, feed_dict={X: [image], keep_prob: 1.0})
-    char_idx = max_idx[0].tolist()
-    vector = np.zeros(CAPTCHA_LEN * CHAR_SET_LEN)
-    i = 0
-    for idx in char_idx:
-        vector[i * CHAR_SET_LEN + idx] = 1
-        i += 1
-    return vector2text(vector)
+# noinspection PyBroadException
+def predict_captcha(image, clazz=0):
+    """
+    :param image: image base64
+    :param clazz: 0: normal captcha
+                  1: bold captcha
+    :return: predict captcha code
+    """
+    try:
+        image = img2array(image)
+        if clazz == 0:
+            max_idx = normal_sess.run(predict_normal, feed_dict={X_normal: [image], keep_prob_normal: 1.0})
+        else:
+            max_idx = bold_sess.run(predict_bold, feed_dict={X_bold: [image], keep_prob_bold: 1.0})
+
+        char_idx = max_idx[0].tolist()
+        vector = np.zeros(CAPTCHA_LEN * CHAR_SET_LEN)
+        i = 0
+        for idx in char_idx:
+            vector[i * CHAR_SET_LEN + idx] = 1
+            i += 1
+        return vector2text(vector)
+    except BaseException:
+        logging.warning("Predict captcha exception!", exc_info=True)
+        return "####"
 
 
 def test_accuracy():
