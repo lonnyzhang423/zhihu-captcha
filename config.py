@@ -1,11 +1,12 @@
 import string
 
 __all__ = ["CAPTCHA_LEN", "CHAR_SET", "CHAR_SET_LEN", "IMG_HEIGHT", "IMG_WIDTH",
-           "NUM_CLASSIFY_CLASSES", "NUM_PREDICT_CLASSES"]
+           "NUM_CLASSIFY_CLASSES", "NUM_PREDICT_CLASSES", "INVALID_CAPTCHA"]
 
 numbers = string.digits
 alphabets = string.ascii_lowercase
 ALPHABETS = string.ascii_uppercase
+INVALID_CAPTCHA = "####"
 
 CAPTCHA_LEN = 4
 CHAR_SET = numbers + alphabets + ALPHABETS

@@ -6,29 +6,7 @@ import tensorflow as tf
 from config import *
 from utils import *
 
-__all__ = ["predict_captcha", "captcha_logger"]
-
-
-def _init_captcha_logger():
-    logger = logging.getLogger(__file__)
-    logger.setLevel(logging.INFO)
-
-    if len(logger.handlers) > 0:
-        logger.handlers.clear()
-
-    fh = logging.FileHandler("hits_captcha.log", encoding="utf8")
-    sh = logging.StreamHandler()
-    fmt = logging.Formatter("%(message)s")
-    fh.setFormatter(fmt)
-    sh.setFormatter(fmt)
-
-    logger.addHandler(fh)
-    logger.addHandler(sh)
-
-    return logger
-
-
-captcha_logger = _init_captcha_logger()
+__all__ = ["predict_captcha"]
 
 normal_graph = tf.Graph()
 with normal_graph.as_default():
@@ -67,9 +45,12 @@ def predict_captcha(image, clazz=0):
     :param image: image base64
     :param clazz: 0: normal captcha
                   1: bold captcha
+                  -1: invalid captcha
     :return: predict captcha code
     """
     try:
+        if clazz != 0 and clazz != 1:
+            return INVALID_CAPTCHA
         image = img2array(image)
         if clazz == 0:
             max_idx = normal_sess.run(predict_normal, feed_dict={X_normal: [image], keep_prob_normal: 1.0})
@@ -85,7 +66,7 @@ def predict_captcha(image, clazz=0):
         return vector2text(vector)
     except BaseException:
         logging.warning("Predict captcha exception! Class:%s", clazz, exc_info=True)
-        return "####"
+        return INVALID_CAPTCHA
 
 
 def test_accuracy():
