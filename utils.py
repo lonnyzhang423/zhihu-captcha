@@ -8,16 +8,13 @@ from PIL import Image
 from config import *
 
 __all__ = ["text2vector", "vector2text", "img2array",
-           "next_normal_text_and_image", "next_predict_batch", "next_classify_batch",
-           "classify_checkpoints_dir", "samples_dir",
-           "predict_normal_checkpoints_dir", "predict_bold_checkpoints_dir",
-           "InvalidCaptchaError"]
+           "next_train_batch", "next_train_text_and_image", "next_test_text_and_image",
+           "samples_dir", "checkpoints_dir", "InvalidCaptchaError"]
 
-# 细体验证码
-os.path.dirname(__file__)
-NORMAL_CAPTCHA = os.path.join(os.path.dirname(__file__), "samples", "normal_captcha_base64.txt")
-# 粗体验证码
-BOLD_CAPTCHA = os.path.join(os.path.dirname(__file__), "samples", "bold_captcha_base64.txt")
+# 训练验证码
+TRAIN_CAPTCHA = os.path.join(os.path.dirname(__file__), "samples", "train_mixed_captcha_base64.txt")
+# 测试验证码
+TEST_CAPTCHA = os.path.join(os.path.dirname(__file__), "samples", "test_mixed_captcha_base64.txt")
 
 
 def text2vector(text):
@@ -75,104 +72,62 @@ def img2array(image):
         raise InvalidCaptchaError()
 
 
-_normal_captcha_file = open(NORMAL_CAPTCHA, "r")
-_bold_captcha_file = open(BOLD_CAPTCHA, "r")
+_train_captcha = open(TRAIN_CAPTCHA, "r")
+_test_captcha = open(TEST_CAPTCHA, "r")
 
 
-def next_normal_text_and_image():
-    global _normal_captcha_file
+def next_train_text_and_image():
+    global _train_captcha
     try:
-        line = next(_normal_captcha_file)
-        text, img_base64 = line.split(":")
+        line = next(_train_captcha)
+        text, img_base64 = line.split(":")[-2:]
         image = img2array(img_base64)
         return text, image
     except StopIteration:
-        _normal_captcha_file.close()
-        _normal_captcha_file = open(NORMAL_CAPTCHA, "r")
-        logging.warning("Not enough normal captcha! Loop reading lines from same file!")
-        return next_normal_text_and_image()
+        _train_captcha.close()
+        _train_captcha = open(TRAIN_CAPTCHA, "r")
+        logging.warning("Not enough captcha! Loop reading lines from same file!")
+        return next_train_text_and_image()
     except InvalidCaptchaError:
-        logging.warning("Invalid captcha error! Next normal text and image!", exc_info=True)
-        return next_normal_text_and_image()
+        logging.warning("Invalid captcha error! Next train text and image!", exc_info=True)
+        return next_train_text_and_image()
 
 
-def next_normal_image():
-    _, image = next_normal_text_and_image()
-    return image
-
-
-def next_bold_text_and_image():
-    global _bold_captcha_file
+def next_test_text_and_image():
+    global _test_captcha
     try:
-        line = next(_bold_captcha_file)
-        text, img_base64 = line.split(":")
+        line = next(_test_captcha)
+        clazz, text, img_base64 = line.split(":")
         image = img2array(img_base64)
         return text, image
     except StopIteration:
-        _bold_captcha_file.close()
-        _bold_captcha_file = open(BOLD_CAPTCHA, "r")
-        logging.warning("Not enough bold captcha! Loop reading lines from same file!")
-        return next_bold_text_and_image()
+        _test_captcha.close()
+        _test_captcha = open(TEST_CAPTCHA, "r")
+        logging.warning("Not enough test captcha! Loop reading lines from same file!")
+        return next_test_text_and_image()
     except InvalidCaptchaError:
-        logging.warning("Invalid captcha error! Next normal text and image!", exc_info=True)
-        return next_bold_text_and_image()
+        logging.warning("Invalid captcha error! Next test text and image!", exc_info=True)
+        return next_test_text_and_image()
 
 
-def next_bold_image():
-    _, image = next_bold_text_and_image()
-    return image
-
-
-def next_predict_batch(batch_size=64, clazz=0):
+def next_train_batch(batch_size=64):
     """
     produce batch sample for prediction
     :param batch_size: default 64
-    :param clazz:
-                  0: normal captcha
-                  1: bold captcha
     """
     xs = np.zeros([batch_size, IMG_WIDTH * IMG_HEIGHT])
     ys = np.zeros([batch_size, CAPTCHA_LEN * CHAR_SET_LEN])
 
     for i in range(batch_size):
-        if clazz == 0:
-            text, image = next_normal_text_and_image()
-        else:
-            text, image = next_bold_text_and_image()
+        text, image = next_train_text_and_image()
         xs[i, :] = image
         ys[i, :] = text2vector(text)
+
     return xs, ys
 
 
-def next_classify_batch(batch_size=64):
-    """
-    produce batch samples for classification
-    """
-    xs = np.zeros([batch_size, IMG_WIDTH * IMG_HEIGHT])
-    ys = np.zeros([batch_size, NUM_CLASSIFY_CLASSES])
-
-    for i in range(batch_size):
-        if i % 2 == 0:
-            image = next_normal_image()
-            y = [1, 0]
-        else:
-            image = next_bold_image()
-            y = [0, 1]
-        xs[i, :] = image
-        ys[i, :] = y
-    return xs, ys
-
-
-def predict_normal_checkpoints_dir():
-    return os.path.join(os.path.dirname(__file__), "predict", "normal_checkpoints")
-
-
-def predict_bold_checkpoints_dir():
-    return os.path.join(os.path.dirname(__file__), "predict", "bold_checkpoints")
-
-
-def classify_checkpoints_dir():
-    return os.path.join(os.path.dirname(__file__), "classify", "checkpoints")
+def checkpoints_dir():
+    return os.path.join(os.path.dirname(__file__), "train", "checkpoints")
 
 
 def samples_dir():

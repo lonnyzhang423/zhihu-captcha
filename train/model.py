@@ -104,22 +104,15 @@ def evaluation(logits, labels):
     return accuracy
 
 
-def feed_dict(training=True, clazz=0):
-    x, y = next_predict_batch(clazz=clazz)
+def feed_dict(training=True):
+    x, y = next_train_batch()
     if training:
         return {X: x, Y: y, keep_prob: 0.7}
     else:
         return {X: x, Y: y, keep_prob: 1.0}
 
 
-def checkpoints_dir(clazz=0):
-    if clazz == 0:
-        return predict_normal_checkpoints_dir()
-    else:
-        return predict_bold_checkpoints_dir()
-
-
-def start_train(clazz=0):
+def start_train():
     logits = inference()
     loss = losses(logits, Y)
     train_op = train_step(loss)
@@ -128,33 +121,28 @@ def start_train(clazz=0):
     saver = tf.train.Saver(max_to_keep=2)
     with tf.Session() as sess:
         merged = tf.summary.merge_all()
-        if clazz == 0:
-            summary = tf.summary.FileWriter("normal_logs", sess.graph)
-        else:
-            summary = tf.summary.FileWriter("bold_logs", sess.graph)
+        summary = tf.summary.FileWriter("logs", sess.graph)
 
         sess.run(tf.global_variables_initializer())
         try:
             for step in range(0, 10000):
-                try:
-                    _, loss_ = sess.run([train_op, loss], feed_dict=feed_dict(True, clazz=clazz))
-                    print("Step:", step, "Loss:", loss_)
-                except InvalidCaptchaError:
-                    continue
+                feeds = feed_dict(True)
+                _, loss_ = sess.run([train_op, loss], feed_dict=feeds)
+                print("Step:", step, "Loss:", loss_)
 
                 if step % 100 == 0:
-                    logs, acc = sess.run([merged, accuracy], feed_dict=feed_dict(False, clazz=clazz))
+                    logs, acc = sess.run([merged, accuracy], feed_dict=feeds)
                     summary.add_summary(logs, step)
                     print("Step:", step, "Accuracy:", acc)
 
                 if step and step % 1000 == 0:
-                    file = os.path.join(checkpoints_dir(clazz=clazz), "predict_model")
+                    file = os.path.join(checkpoints_dir(), "predict_model")
                     saver.save(sess, file, global_step=step)
         except KeyboardInterrupt as e:
-            file = os.path.join(checkpoints_dir(clazz=clazz), "predict_model")
+            file = os.path.join(checkpoints_dir(), "predict_model")
             saver.save(sess, file, global_step=100000)
             raise e
 
 
 if __name__ == '__main__':
-    start_train(clazz=1)
+    start_train()
