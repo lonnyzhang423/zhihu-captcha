@@ -46,7 +46,7 @@ def predict_captcha(image):
         return INVALID_CAPTCHA
 
 
-def test_accuracy():
+def eval_accuracy():
     total = hits = 0
     for i in range(100):
         total += 1
@@ -62,4 +62,4 @@ def test_accuracy():
 
 
 if __name__ == '__main__':
-    test_accuracy()
+    eval_accuracy()
