@@ -60,12 +60,4 @@
 **源码地址**：[https://github.com/lonnyzhang423/zhihu-captcha](https://github.com/lonnyzhang423/zhihu-captcha)  
 
 **UPDATE**  
-知乎最近升级了验证码服务，换成腾讯的滑块验证码  
-之前的字符验证码样本就再次分享出来给大家学习使用吧！这下应该没人举报了吧  
-关注公众号：**Python实验课** ， 后台回复：**知乎验证码** 获取百度云链接。  
-
-**UPDATE**  
-写了一个api给大家测试预测的效果  
-**地址**：http://47.96.150.119/api/toolkit/captcha  
-**方法**：POST  
-**参数**：img_base64
+知乎最近升级了验证码服务，换成腾讯的滑块验证码，这个没用啦
